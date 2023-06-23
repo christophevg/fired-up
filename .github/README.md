@@ -150,3 +150,43 @@ FiredUp(left=(Left, { "write" : True }), right=Right)
 right> left was here
 left> right was here too
 ```
+
+### Menus
+
+The FireUp class is kind of a Menu of Groups of Commands. You cal also nest Menus of your own:
+
+```python
+import json
+
+from fired_up import FiredUp, Menu, Group
+
+class Commands(Group):
+  def run(self):
+    print("Commands> running...")
+
+class SubCommands(Group):
+  def run(self):
+    print("SubCommands> running...")
+
+class SubSubCommands(Group):
+  def run(self):
+    print("SubSubCommands> running...")
+
+FiredUp(
+  commands=Commands,
+  submenu=Menu(
+    commands=SubCommands,
+    subsubmenu=Menu(
+      commands=SubSubCommands
+    )
+  )
+)
+```
+
+```console
+% python examples/nested.py commands run then submenu commands run then commands run then submenu subsubmenu commands run
+Commands> running...
+SubCommands> running...
+Commands> running...
+SubSubCommands> running...
+```
