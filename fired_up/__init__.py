@@ -4,7 +4,7 @@
   language style
 
 """
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 import sys
 import functools
@@ -17,20 +17,21 @@ class Group():
   baseclass for command groups
   
   """
-  def __init__(self, _shared=None, _exit=None):
-    self._shared = _shared
-    self._exit   = _exit
+  def __init__(self, _clipboard=None, _exit=None, _globals=None):
+    self.globals    = _globals
+    self._clipboard = _clipboard
+    self._exit      = _exit
 
   def then(self):
-    # next(self._shared)
+    # next(self._clipboard)
     return self._exit
 
   def copy(self, value, name="default"):
-    self._shared[name] = value
+    self._clipboard[name] = value
     return self
 
   def paste(self, name="default"):
-    return self._shared[name]
+    return self._clipboard[name]
 
 def keep(method):
   @functools.wraps(method)
@@ -38,7 +39,7 @@ def keep(method):
     result = method(self, *args, **kwargs)
     self.copy(result)
     if result:
-      next(self._shared)
+      next(self._clipboard)
     return self
   return wrapper
 
@@ -71,19 +72,29 @@ class Clipboards():
 if "--all" in sys.argv:
   sys.argv.remove("--all")
   def paste_result(obj):
-    return [board["default"] for board in obj._shared._boards[:-1] ]
+    return [board["default"] for board in obj._clipboard._boards[:-1] ]
 else:
   def paste_result(obj):
     return obj.paste()
 
 class FiredUp(Group):
-  def __init__(self, name=None, *args, **kwargs):
-    self._shared = Clipboards()
+  def __init__(self, name=None, **kwargs):
+    self._globals = {}
+    self._clipboard  = Clipboards()
     for group, clazz in kwargs.items():
+      if type(clazz) is tuple:
+        clazz, args = clazz
+      else:
+        args = {}
       for attr in clazz.__dict__:
         if callable(getattr(clazz, attr)) and attr != "__init__":
           setattr(clazz, attr, keep(getattr(clazz, attr)))
-      self.__dict__[group] = clazz(_shared=self._shared, _exit=self)
+      self.__dict__[group] = clazz(
+        _globals=self._globals,
+        _clipboard=self._clipboard,
+        _exit=self,
+        **args
+      )
     try:
       fire.Fire(self, name=name, serialize=paste_result)
     except KeyboardInterrupt:
