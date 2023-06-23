@@ -4,7 +4,7 @@
   language style
 
 """
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 import sys
 import functools
@@ -87,7 +87,7 @@ class FiredUp(Group):
       else:
         args = {}
       for attr in clazz.__dict__:
-        if callable(getattr(clazz, attr)) and attr != "__init__":
+        if callable(getattr(clazz, attr)) and not attr[0] == "_":
           setattr(clazz, attr, keep(getattr(clazz, attr)))
       self.__dict__[group] = clazz(
         _globals=self._globals,
