@@ -94,19 +94,19 @@ if __name__ == "__main__":
 For now, it runs the same and offers improved chaining possibilities:
 
 ```conole
-% PYTHONPATH=. python examples/fire-group.py ingestion run
+% python examples/fire-group.py ingestion run
 Ingesting! Nom nom nom...
-% PYTHONPATH=. python examples/fire-group.py digestion run
+% python examples/fire-group.py digestion run
 Burp!
-% PYTHONPATH=. python examples/fire-group.py digestion status
+% python examples/fire-group.py digestion status
 Satiated.
-% PYTHONPATH=. python examples/fire-group.py ingestion run then digestion run status
+% python examples/fire-group.py ingestion run then digestion run status
 Satiated.
-% PYTHONPATH=. python examples/fire-group.py --all ingestion run then digestion run status
+% python examples/fire-group.py --all ingestion run then digestion run status
 Ingesting! Nom nom nom...
 Burp!
 Satiated.
-% PYTHONPATH=. python examples/fire-group.py --all ingestion run then digestion volume 2 run status
+% python examples/fire-group.py --all ingestion run then digestion volume 2 run status
 Ingesting! Nom nom nom...
 Burp! Burp!
 Satiated.
