@@ -15,7 +15,7 @@ dill==0.3.5.1
 distlib==0.3.5
 docutils==0.16
 filelock==3.7.1
-fire==0.4.0
+fire==0.5.0
 future==0.18.2
 idna==3.3
 imagesize==1.4.1
@@ -38,6 +38,7 @@ Pygments==2.12.0
 pylint==2.14.5
 pyOpenSSL==22.0.0
 pyparsing==3.0.9
+pypi-template==0.2.0
 pytz==2022.1
 PyYAML==6.0
 readme-renderer==36.0
