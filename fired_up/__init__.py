@@ -103,7 +103,7 @@ class Menu(Group):
       if isinstance(clazz, type):
         # make sure all public methods return self to allow for chaining
         for attr in clazz.__dict__:
-          if callable(getattr(clazz, attr)) and attr != "__init__":
+          if callable(getattr(clazz, attr)) and attr[0] != "_":
             setattr(clazz, attr, keep(getattr(clazz, attr)))
         self.__dict__[group] = clazz(_parent=self, **args)
       elif isinstance(clazz, Menu):
