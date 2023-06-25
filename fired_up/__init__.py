@@ -92,27 +92,26 @@ class Menu(Group):
   """
   def __init__(self, **kwargs):
     super().__init__()
-
-    for group, clazz in kwargs.items():
-      # unpack tuple(clazz, arguments)
-      if type(clazz) is tuple:
-        clazz, args = clazz
+    for group, class_or_obj in kwargs.items():
+      # unpack tuple(class_or_obj, arguments)
+      if type(class_or_obj) is tuple:
+        class_or_obj, args = class_or_obj
       else:
         args = {}
       # only handle classes, objects are used verbatim
-      if isinstance(clazz, type):
-        # make sure all public methods return self to allow for chaining
-        for attr in clazz.__dict__:
-          if callable(getattr(clazz, attr)) and attr[0] != "_":
-            setattr(clazz, attr, keep(getattr(clazz, attr)))
-        self.__dict__[group] = clazz(_parent=self, **args)
-      elif isinstance(clazz, Menu):
-        # handle "sub"menu's, which are already created and need a ref to the
-        # shared
-        self.__dict__[group] = clazz
-        clazz._parent = self
+      if isinstance(class_or_obj, type):
+        # make sure all "public" methods return self to allow for chaining
+        for attr in class_or_obj.__dict__:
+          if callable(getattr(class_or_obj, attr)) and attr[0] != "_":
+            setattr(class_or_obj, attr, keep(getattr(class_or_obj, attr)))
+        self.__dict__[group] = class_or_obj(_parent=self, **args)
+      elif isinstance(class_or_obj, Menu):
+        # handle "sub"menu's, which are already objects and need merely a ref
+        # to this parent, to allow for finding the top-level shared data
+        self.__dict__[group] = class_or_obj
+        class_or_obj._parent = self
       else:
-        raise ValueError("classes or Menu's, nothing else please")
+        raise ValueError(f"Classes or other Menu'. Got '{type(class_or_obj)}'.")
 
 class FiredUp(Menu):
   """
