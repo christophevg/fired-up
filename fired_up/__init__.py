@@ -122,12 +122,12 @@ class FiredUp(Menu):
   """
   
   def __init__(self, name=None, **kwargs):
-    super().__init__(**kwargs)
     self._actual_shared = {
       "clipboard" : Clipboards(),
       "globals"   : {},
       "exit"      : self
     }
+    super().__init__(**kwargs)
     try:
       fire.Fire(self, name=name, serialize=paste_result)
     except KeyboardInterrupt:
