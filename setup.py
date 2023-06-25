@@ -17,7 +17,7 @@ CLASSIFIERS      = [
   
 ]
 INSTALL_REQUIRES = [
-  "fire",
+  "fire==0.5.0",
   
 ]
 ENTRY_POINTS = {

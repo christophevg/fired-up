@@ -14,7 +14,7 @@ package_name: fired-up
 package_tagline: conventions and supporting tools for using Fire in a more natural-ish language style
 package_title: Fired Up
 requires:
-- fire
+- fire==0.5.0
 scripts: []
 your_author_name: Christophe VG
 your_email_address: contact@christophe.vg
@@ -26,7 +26,5 @@ skip:
 - (package_module_name)
 - .github/README.md
 - .travis.yml
-- tests
 - Makefile
 - LICENSE.txt
-- tox.ini
