@@ -191,6 +191,28 @@ Commands> running...
 SubSubCommands> running...
 ```
 
+### Simple Commands
+
+Besides objects with commands and menus, you can also simply provide a function, which will be handled as a command:
+
+```python
+from fired_up import FiredUp, __version__
+
+def get_hello():
+  return "hello"
+
+def get_version():
+  return __version__
+  
+FiredUp(hello=get_hello, version=get_version)
+```
+
+```console
+% python examples/version.py --all hello then version
+hello
+0.0.7
+```
+
 ### Public Functions and Output
 
 Since `FiredUp` makes all public functions chainable, public functions that return some value can't be used directly by other functions. To access the original return value one can use `.paste()` in a chaining way:

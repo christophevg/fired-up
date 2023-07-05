@@ -10,6 +10,7 @@ examples:
 	$(RUN) examples/fire-group.py --all ingestion run then digestion volume 2 run status
 	$(RUN) examples/globals.py left write then right readwrite then left read
 	$(RUN) examples/nested.py commands run then submenu commands run then commands run then submenu subsubmenu commands run
+	$(RUN) examples/version.py --all hello then version
 
 tag:
 	git tag ${TAG} -m "${MSG}"

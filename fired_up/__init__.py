@@ -83,26 +83,29 @@ class Menu(Group):
   """
   def __init__(self, **kwargs):
     super().__init__()
-    for group, class_or_obj in kwargs.items():
-      # unpack tuple(class_or_obj, arguments)
-      if type(class_or_obj) is tuple:
-        class_or_obj, args = class_or_obj
+    for group, handler in kwargs.items():
+      # unpack optional tuple(handler, arguments)
+      if type(handler) is tuple:
+        handler, args = handler
       else:
         args = {}
-      # only handle classes, objects are used verbatim
-      if isinstance(class_or_obj, type):
+
+      if isinstance(handler, type):
         # make sure all "public" methods return self to allow for chaining
-        for attr in class_or_obj.__dict__:
-          if callable(getattr(class_or_obj, attr)) and attr[0] != "_":
-            setattr(class_or_obj, attr, keep(getattr(class_or_obj, attr)))
-        self.__dict__[group] = class_or_obj(_parent=self, **args)
-      elif isinstance(class_or_obj, Menu):
+        for attr in handler.__dict__:
+          if callable(getattr(handler, attr)) and attr[0] != "_":
+            setattr(handler, attr, keep(getattr(handler, attr)))
+        self.__dict__[group] = handler(_parent=self, **args)
+      elif isinstance(handler, Menu):
         # handle "sub"menu's, which are already objects and need merely a ref
         # to this parent, to allow for finding the top-level shared data
-        self.__dict__[group] = class_or_obj
-        class_or_obj._parent = self
+        self.__dict__[group] = handler
+        handler._parent = self
+      elif callable(handler):
+        # simple functions
+        self.__dict__[group] = (lambda f: lambda: self.copy(f(), advance=True))(handler)
       else:
-        raise ValueError(f"Classes or other Menu'. Got '{type(class_or_obj)}'.")
+        raise ValueError(f"Classes or other Menu'. Got '{type(handler)}'.")
 
 class FiredUp(Menu):
 
