@@ -76,14 +76,6 @@ class Clipboards():
   def __str__(self):
     return str(self._boards)
 
-if "--all" in sys.argv:
-  sys.argv.remove("--all")
-  def paste_result(obj):
-    return [board["default"] for board in obj._shared["clipboard"]._boards[:-1] ]
-else:
-  def paste_result(obj):
-    return obj.paste()
-
 class Menu(Group):
   """
   
@@ -120,12 +112,26 @@ class FiredUp(Menu):
   
   """
   
-  def __init__(self, name=None, command=None, **kwargs):
+  def __init__(self, name=None, command=None, all_results=False, **kwargs):
     self._actual_shared = {
       "clipboard" : Clipboards(),
       "globals"   : {},
       "exit"      : self
     }
+    if "--all" in sys.argv:
+      sys.argv.remove("--all")
+      all_results = True
+
+    if all_results:
+      def paste_result(obj):
+        return [board["default"] for board in obj._shared["clipboard"]._boards[:-1] ]
+    else:
+      def paste_result(obj):
+        try:
+          return obj.paste()
+        except AttributeError:
+          return obj
+    
     super().__init__(**kwargs)
     try:
       fire.Fire(self, name=name, command=command, serialize=paste_result)
