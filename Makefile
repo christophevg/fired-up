@@ -23,6 +23,7 @@ upgrade: requirements
 
 test: requirements
 	tox
+	coverage report -m
 
 dist: requirements
 	rm -rf $@
