@@ -21,7 +21,7 @@ class Group():
     self._parent = _parent
 
   @property
-  def globals(self):
+  def _globals(self):
     return self._shared["globals"]
 
   @property

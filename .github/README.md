@@ -132,15 +132,15 @@ class Left(Group):
 
   def write(self):
     if self._write:
-      self.globals["message"] = "left was here"
+      self._globals["message"] = "left was here"
 
   def read(self):
-    print("left>", self.globals["message"])
+    print("left>", self._globals["message"])
 
 class Right(Group):
   def readwrite(self):
-    print("right>", self.globals["message"])
-    self.globals["message"] = "right was here too"
+    print("right>", self._globals["message"])
+    self._globals["message"] = "right was here too"
 
 FiredUp(left=(Left, { "write" : True }), right=Right)
 ```
