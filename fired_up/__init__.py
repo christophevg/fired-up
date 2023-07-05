@@ -33,8 +33,10 @@ class Group():
   def then(self):
     return self._shared["exit"]
 
-  def copy(self, value, name="default"):
+  def copy(self, value, name="default", advance=False):
     self._shared["clipboard"][name] = value
+    if advance:
+      next(self._shared["clipboard"])
     return self
 
   def paste(self, name="default"):
@@ -43,10 +45,7 @@ class Group():
 def keep(method):
   @functools.wraps(method)
   def wrapper(self, *args, **kwargs):
-    result = method(self, *args, **kwargs)
-    self.copy(result)
-    if result:
-      next(self._shared["clipboard"])
+    self.copy(method(self, *args, **kwargs), advance=True)
     return self
   return wrapper
 
