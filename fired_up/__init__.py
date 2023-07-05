@@ -106,12 +106,7 @@ class Menu(Group):
         raise ValueError(f"Classes or other Menu'. Got '{type(class_or_obj)}'.")
 
 class FiredUp(Menu):
-  """
-  
-  the FiredUp class is the root-menu and holds the shared globals and clipboard
-  
-  """
-  
+
   def __init__(self, name=None, command=None, all_results=False, **kwargs):
     self._actual_shared = {
       "clipboard" : Clipboards(),
