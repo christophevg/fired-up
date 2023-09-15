@@ -77,7 +77,9 @@ class Group():
 def keep(method):
   @functools.wraps(method)
   def wrapper(self, *args, **kwargs):
-    self.copy(method(self, *args, **kwargs), advance=True)
+    result = method(self, *args, **kwargs)
+    if result is not self:
+      self.copy(result, advance=True)
     return self
   return wrapper
 
