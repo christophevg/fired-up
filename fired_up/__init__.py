@@ -11,44 +11,6 @@ import functools
 
 import fire
 
-class Group():
-  """
-  
-  baseclass for command groups
-  
-  """
-  def __init__(self, _parent=None):
-    self._parent = _parent
-
-  @property
-  def _globals(self):
-    return self._shared["globals"]
-
-  @property
-  def _shared(self):
-    if self._parent:
-      return self._parent._shared
-    return None
-
-  def then(self):
-    return self._shared["exit"]
-
-  def copy(self, value, name="default", advance=False):
-    self._shared["clipboard"][name] = value
-    if advance:
-      next(self._shared["clipboard"])
-    return self
-
-  def paste(self, name="default"):
-    return self._shared["clipboard"][name]
-
-def keep(method):
-  @functools.wraps(method)
-  def wrapper(self, *args, **kwargs):
-    self.copy(method(self, *args, **kwargs), advance=True)
-    return self
-  return wrapper
-
 class Clipboards():
   """
   
@@ -72,8 +34,52 @@ class Clipboards():
       pass
     return None
 
-  def __str__(self):
-    return str(self._boards)
+  # unused ?
+  # def __str__(self):
+  #   return str(self._boards)
+
+class Group():
+  """
+  
+  baseclass for command groups
+  
+  """
+  def __init__(self, _parent=None):
+    self._parent = _parent
+    self._local_shared = {
+      "clipboard" : Clipboards(),
+      "globals"   : {},
+      "exit"      : self
+    }
+
+  @property
+  def _globals(self):
+    return self._shared["globals"]
+
+  @property
+  def _shared(self):
+    if self._parent:
+      return self._parent._shared
+    return self._local_shared
+
+  def then(self):
+    return self._shared["exit"]
+
+  def copy(self, value, name="default", advance=False):
+    self._shared["clipboard"][name] = value
+    if advance:
+      next(self._shared["clipboard"])
+    return self
+
+  def paste(self, name="default"):
+    return self._shared["clipboard"][name]
+
+def keep(method):
+  @functools.wraps(method)
+  def wrapper(self, *args, **kwargs):
+    self.copy(method(self, *args, **kwargs), advance=True)
+    return self
+  return wrapper
 
 class Menu(Group):
   """
@@ -110,11 +116,6 @@ class Menu(Group):
 class FiredUp(Menu):
 
   def __init__(self, name=None, command=None, all_results=False, **kwargs):
-    self._actual_shared = {
-      "clipboard" : Clipboards(),
-      "globals"   : {},
-      "exit"      : self
-    }
     if "--all" in sys.argv:
       sys.argv.remove("--all")
       all_results = True
@@ -134,7 +135,3 @@ class FiredUp(Menu):
       fire.Fire(self, name=name, command=command, serialize=paste_result)
     except KeyboardInterrupt:
       pass
-
-  @property
-  def _shared(self):
-    return self._actual_shared
