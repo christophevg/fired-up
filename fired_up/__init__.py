@@ -135,5 +135,5 @@ class FiredUp(Menu):
     super().__init__(**kwargs)
     try:
       fire.Fire(self, name=name, command=command, serialize=paste_result)
-    except KeyboardInterrupt:
+    except KeyboardInterrupt: # pragma: no cover
       pass
