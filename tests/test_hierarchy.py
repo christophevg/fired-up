@@ -63,3 +63,15 @@ def test_nested_menu_hierarchy_has_single_shared_globals():
   assert top.menu.master._shared  is top._local_shared
   
   assert top.slave._globals["root"] == "set by master"
+
+def test_standalone_group_does_post_construct_init():
+  class Master(Group):
+    def __init__(self, *args, **kwargs):
+      self.changed = False
+      super().__init__(*args, **kwargs)
+
+    def __post_construct_init__(self):
+      self.changed = True
+
+  group = Master()
+  assert group.changed

@@ -44,6 +44,8 @@ class Group():
   baseclass for command groups
   
   """
+  _delay_post_construct = False
+  
   def __init__(self, _parent=None):
     self._parent = _parent
     self._local_shared = {
@@ -51,8 +53,12 @@ class Group():
       "globals"   : {},
       "exit"      : self
     }
+    # is we don't have a parent, we're the top of the food chain and we should
+    # start the post_construct_init cycle
+    if not self._parent and not self._delay_post_construct:
+      self.__post_construct_init__()
 
-  def __post_construct_init(self):
+  def __post_construct_init__(self):
     pass
 
   @property
@@ -92,8 +98,10 @@ class Menu(Group):
   a menu is a set of groups or other menus
   
   """
+
+  _delay_post_construct = True
+
   def __init__(self, **kwargs):
-    super().__init__()
     self.handlers = kwargs
     for group, handler in self.handlers.items():
       # unpack optional tuple(handler, arguments)
@@ -119,6 +127,10 @@ class Menu(Group):
       else:
         raise ValueError(f"Classes or other Menu'. Got '{type(handler)}'.")
 
+    # a menu will get its _parent later, we set a flag to avoid the group init
+    # to detect no parent and continue with the post_constuction
+    super().__init__()
+
   def __post_construct_init__(self):
     for name in self.handlers.keys():
       try:
@@ -127,6 +139,8 @@ class Menu(Group):
         pass
 
 class FiredUp(Menu):
+  
+  _delay_post_construct = False
 
   def __init__(self, name=None, command=None, all_results=False, **kwargs):
     if "--all" in sys.argv:
@@ -144,12 +158,6 @@ class FiredUp(Menu):
           return obj
     
     super().__init__(**kwargs)
-    
-    # the entire hierarchy is now constructed, and all Grops are linked to this
-    # FiredUp instance. now trigger a __post_construction_init__ to allow all
-    # Groups to perform any initialization that is important to all, e.g. set
-    # global variables
-    self.__post_construct_init__()
     
     try:
       fire.Fire(self, name=name, command=command, serialize=paste_result)
