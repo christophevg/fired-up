@@ -1,5 +1,3 @@
-import json
-
 from fired_up import FiredUp, Menu, Group
 
 class Commands(Group):

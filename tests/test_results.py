@@ -1,4 +1,4 @@
-from fired_up import FiredUp, Group, Menu
+from fired_up import FiredUp, Group
 
 class SomeClass():
   def __str__(self):

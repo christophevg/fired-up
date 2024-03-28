@@ -1,4 +1,4 @@
-from fired_up import FiredUp, Group, Menu
+from fired_up import FiredUp, Group
 
 class SomeGroup(Group):
   def __init__(self, name, *args, **kwargs):

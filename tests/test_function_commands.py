@@ -1,5 +1,3 @@
-import json
-
 from fired_up import FiredUp
 
 def test_function_command(capture):

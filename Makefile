@@ -1,47 +1,122 @@
-RUN=PYTHONPATH=. python
+# colors
 
-examples:
-	$(RUN) examples/hello.py generate a_reversed_list 1,a,2,b then dump as_json
-	$(RUN) examples/fire-group.py ingestion run
-	$(RUN) examples/fire-group.py digestion run
-	$(RUN) examples/fire-group.py digestion status
-	$(RUN) examples/fire-group.py ingestion run then digestion run status
-	$(RUN) examples/fire-group.py --all ingestion run then digestion run status
-	$(RUN) examples/fire-group.py --all ingestion run then digestion volume 2 run status
-	$(RUN) examples/globals.py left write then right readwrite then left read
-	$(RUN) examples/nested.py commands run then submenu commands run then commands run then submenu subsubmenu commands run
-	$(RUN) examples/version.py --all hello then version
+GREEN=\033[0;32m
+RED=\033[0;31m
+BLUE=\033[0;34m
+NC=\033[0m
 
-tag:
-	git tag ${TAG} -m "${MSG}"
-	git push --tags
+# test envs
 
-requirements: .python-version requirements.txt
-	@pip install --upgrade -r requirements.txt > /dev/null
+PYTHON_VERSIONS ?= 3.8.12 3.9.18 3.10.13 3.11.5
+RUFF_PYTHON_VERSION ?= py38
 
-upgrade: requirements
-	@pip list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip install -U
+PROJECT=$(shell basename $(CURDIR))
+PACKAGE_NAME=`cat .pypi-template | grep "^package_module_name" | cut -d":" -f2`
 
-test: requirements
+RUN_CMD?=python -m $(PACKAGE_NAME)
+RUN_ARGS?=
+
+TEST_ENVS=$(addprefix $(PROJECT)-test-,$(PYTHON_VERSIONS))
+
+install: install-env-run install-env-docs install-env-test
+	@echo "👷‍♂️ $(BLUE)installing requirements in $(PROJECT)$(NC)"
+	pyenv local $(PROJECT)
+	pip install -U pip > /dev/null
+	pip install -U wheel twine > /dev/null
+
+install-env-run:
+	@echo "👷‍♂️ $(BLUE)creating virtual environment $(PROJECT)-run$(NC)"
+	pyenv local --unset
+	-pyenv virtualenv $(PROJECT)-run > /dev/null
+	pyenv local $(PROJECT)-run
+	pip install -U pip > /dev/null
+	pip install -r requirements.txt > /dev/null
+	[ -f requirements.run.txt ] && pip install -r requirements.run.txt > /dev/null || true
+
+install-env-docs:
+	@echo "👷‍♂️ $(BLUE)creating virtual environment $(PROJECT)-docs$(NC)"
+	pyenv local --unset
+	-pyenv virtualenv $(PROJECT)-docs > /dev/null
+	pyenv local $(PROJECT)-docs
+	pip install -U pip > /dev/null
+	pip install -r requirements.docs.txt > /dev/null
+	
+install-env-test: $(TEST_ENVS)
+
+$(PROJECT)-test-%:
+	@echo "👷‍♂️ $(BLUE)creating virtual test environment $@$(NC)"
+	pyenv local --unset
+	-pyenv virtualenv $* $@ > /dev/null
+	pyenv local $@
+	pip install -U pip > /dev/null
+	pip install -U ruff tox > /dev/null
+
+uninstall: uninstall-envs
+
+uninstall-envs: uninstall-env-test uninstall-env-docs uninstall-env-run env clean-env
+
+uninstall-env-test: $(addprefix uninstall-env-test-,$(PYTHON_VERSIONS))
+
+$(addprefix uninstall-env-test-,$(PYTHON_VERSIONS)) uninstall-env-docs uninstall-env-run: uninstall-env-%:
+	@echo "👷‍♂️ $(RED)deleting virtual environment $(PROJECT)-$*$(NC)"
+	-pyenv virtualenv-delete $(PROJECT)-$*
+
+clean-env:
+	@echo "👷‍♂️ $(RED)deleting all packages from current environment$(NC)"
+	pip freeze | cut -d"@" -f1 | cut -d'=' -f1 | xargs pip uninstall -y > /dev/null
+
+upgrade:
+	@pip list --outdated | tail +3 | cut -d " " -f 1 | xargs -n1 pip install -U
+
+# env switching
+
+env-%:
+	pyenv local $(PROJECT)-$*
+
+env:
+	pyenv local $(PROJECT)
+
+env-test:
+	pyenv local $(TEST_ENVS)
+	
+# functional targets
+
+run: env-run
+	$(RUN_CMD) $(RUN_ARGS)
+
+test: env-test lint
 	tox
-	coverage report -m
 
-dist: requirements
-	rm -rf $@
-	python setup.py sdist bdist_wheel
+coverage: test
+	coverage report
 
-publish-test: dist
+lint: env-test
+	ruff --select=E9,F63,F7,F82 --target-version=$(RUFF_PYTHON_VERSION) .
+	ruff --target-version=$(RUFF_PYTHON_VERSION) .
+
+docs: env-docs
+	cd docs; make html
+	open docs/_build/html/index.html
+
+# packaging targets
+
+publish-test: env dist
 	twine upload --repository testpypi dist/*
 
-publish: dist
+publish: env dist
 	twine upload dist/*
 
-PROJECT:=`find . -name '__init__.py' -maxdepth 2 | xargs dirname | grep -v docs`
+dist: env dist-clean
+	python setup.py sdist bdist_wheel
 
-lint:
-	@PYTHONPATH=. pylint --disable=W0311 ${PROJECT} | tee lint.txt
+dist-clean: clean
+	rm -rf dist build *.egg-info
 
 clean:
 	find . -type f -name "*.backup" | xargs rm
 
-.PHONY: dist docs examples
+.PHONY: dist docs test
+
+# include optional a personal/local touch
+
+-include Makefile.mak

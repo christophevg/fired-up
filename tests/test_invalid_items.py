@@ -1,4 +1,4 @@
-from fired_up import FiredUp, Group, Menu
+from fired_up import FiredUp
 
 def test_simple_variable():
   item = 123

@@ -4,7 +4,7 @@
   language style
 
 """
-__version__ = "0.0.9"
+__version__ = "0.0.10"
 
 import sys
 import functools
@@ -30,7 +30,7 @@ class Clipboards():
   def __getitem__(self, key):
     try:
       return self._boards[-1][key]
-    except:
+    except (KeyError, IndexError):
       pass
     return None
 

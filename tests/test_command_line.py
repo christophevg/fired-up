@@ -1,7 +1,7 @@
 import sys
 from unittest.mock import patch
 
-from fired_up import FiredUp, Group, Menu
+from fired_up import FiredUp, Group
 
 class SomeGroup(Group):
   def get_value(self):
