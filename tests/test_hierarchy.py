@@ -39,3 +39,27 @@ def test_hierachy_not_all(capture):
     )
   assert top._local_shared["globals"]["value"] == "testing value"
   assert output == ["testing value"]
+
+def test_nested_menu_hierarchy_has_single_shared_globals():
+  class Master(Group):
+    def __post_construct_init__(self):
+      self._globals["root"] = "set by master"
+
+  class Slave(Group):
+    pass
+
+  top = FiredUp(
+    menu=Menu(
+      master=Master
+    ),
+    slave=Slave
+  )
+
+  assert isinstance(top.menu.master, Master)
+  assert isinstance(top.slave, Slave)
+
+  assert top.slave._shared        is top._local_shared
+  assert top.menu._shared         is top._local_shared
+  assert top.menu.master._shared  is top._local_shared
+  
+  assert top.slave._globals["root"] == "set by master"

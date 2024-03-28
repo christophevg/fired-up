@@ -4,7 +4,7 @@
   language style
 
 """
-__version__ = "0.0.8"
+__version__ = "0.0.9"
 
 import sys
 import functools
@@ -52,6 +52,9 @@ class Group():
       "exit"      : self
     }
 
+  def __post_construct_init(self):
+    pass
+
   @property
   def _globals(self):
     return self._shared["globals"]
@@ -91,7 +94,8 @@ class Menu(Group):
   """
   def __init__(self, **kwargs):
     super().__init__()
-    for group, handler in kwargs.items():
+    self.handlers = kwargs
+    for group, handler in self.handlers.items():
       # unpack optional tuple(handler, arguments)
       if type(handler) is tuple:
         handler, args = handler
@@ -115,6 +119,13 @@ class Menu(Group):
       else:
         raise ValueError(f"Classes or other Menu'. Got '{type(handler)}'.")
 
+  def __post_construct_init__(self):
+    for name in self.handlers.keys():
+      try:
+        self.__dict__[name].__post_construct_init__()
+      except AttributeError:
+        pass
+
 class FiredUp(Menu):
 
   def __init__(self, name=None, command=None, all_results=False, **kwargs):
@@ -133,6 +144,13 @@ class FiredUp(Menu):
           return obj
     
     super().__init__(**kwargs)
+    
+    # the entire hierarchy is now constructed, and all Grops are linked to this
+    # FiredUp instance. now trigger a __post_construction_init__ to allow all
+    # Groups to perform any initialization that is important to all, e.g. set
+    # global variables
+    self.__post_construct_init__()
+    
     try:
       fire.Fire(self, name=name, command=command, serialize=paste_result)
     except KeyboardInterrupt: # pragma: no cover
