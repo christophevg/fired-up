@@ -4,7 +4,7 @@
   language style
 
 """
-__version__ = "0.0.10"
+__version__ = "0.1.0"
 
 import sys
 import functools

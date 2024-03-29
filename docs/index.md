@@ -11,8 +11,14 @@
 
 
 
-## Documentation
+## Contents
 
-Visit [Read the Docs](https://fired-up.readthedocs.org) for the full documentation, including overviews and several examples.
+```{toctree}
+:maxdepth: 1
+whats-in-the-box.md
+getting-started.md
+examples.md
+contributing.md
+```
 
 
