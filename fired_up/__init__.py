@@ -44,8 +44,7 @@ class Group():
   baseclass for command groups
   
   """
-  _delay_post_construct = False
-  
+
   def __init__(self, _parent=None):
     self._parent = _parent
     self._local_shared = {
@@ -55,7 +54,7 @@ class Group():
     }
     # is we don't have a parent, we're the top of the food chain and we should
     # start the post_construct_init cycle
-    if not self._parent and not self._delay_post_construct:
+    if not self._parent:
       self.__post_construct_init__()
 
   def __post_construct_init__(self):
@@ -92,19 +91,23 @@ def keep(method):
     return self
   return wrapper
 
-class Menu(Group):
+def Menu(**kwargs):
+  return (MenuGroup, kwargs)
+
+class MenuGroup(Group):
   """
   
   a menu is a set of groups or other menus
   
   """
 
-  _delay_post_construct = True
+  def __init__(self, _parent=None, **kwargs):
+    self.handlers = kwargs # keep track of command-handlers
 
-  def __init__(self, **kwargs):
-    self.handlers = kwargs
+    # create command handlers
     for group, handler in self.handlers.items():
-      # unpack optional tuple(handler, arguments)
+
+      # unpack optional formatted tuple(handler, arguments)
       if type(handler) is tuple:
         handler, args = handler
       else:
@@ -116,20 +119,14 @@ class Menu(Group):
           if callable(getattr(handler, attr)) and attr[0] != "_":
             setattr(handler, attr, keep(getattr(handler, attr)))
         self.__dict__[group] = handler(_parent=self, **args)
-      elif isinstance(handler, Menu):
-        # handle "sub"menu's, which are already objects and need merely a ref
-        # to this parent, to allow for finding the top-level shared data
-        self.__dict__[group] = handler
-        handler._parent = self
       elif callable(handler):
         # simple functions
         self.__dict__[group] = (lambda f: lambda: self.copy(f(), advance=True))(handler)
       else:
         raise ValueError(f"Classes or other Menu'. Got '{type(handler)}'.")
 
-    # a menu will get its _parent later, we set a flag to avoid the group init
-    # to detect no parent and continue with the post_constuction
-    super().__init__()
+    # all set, now activate it as a group
+    super().__init__(_parent=_parent)
 
   def __post_construct_init__(self):
     for name in self.handlers.keys():
@@ -138,10 +135,8 @@ class Menu(Group):
       except AttributeError:
         pass
 
-class FiredUp(Menu):
+class FiredUp(MenuGroup):
   
-  _delay_post_construct = False
-
   def __init__(self, name=None, command=None, all_results=False, **kwargs):
     if "--all" in sys.argv:
       sys.argv.remove("--all")
