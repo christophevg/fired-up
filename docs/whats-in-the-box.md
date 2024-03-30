@@ -81,13 +81,13 @@ if __name__ == "__main__":
 This runs with exactly the same results:
 
 ```console
-% PYTHONPATH=. python examples/fire-up-group.py ingestion run
+% PYTHONPATH=. python examples/fired-up-group.py ingestion run
 Ingesting! Nom nom nom...
-% PYTHONPATH=. python examples/fire-up-group.py digestion run
+% PYTHONPATH=. python examples/fired-up-group.py digestion run
 Burp!
-% PYTHONPATH=. python examples/fire-up-group.py digestion status
+% PYTHONPATH=. python examples/fired-up-group.py digestion status
 Satiated.
-% PYTHONPATH=. python examples/fire-up-group.py run             
+% PYTHONPATH=. python examples/fired-up-group.py run             
 Ingesting! Nom nom nom...
 Burp!
 ```
@@ -115,13 +115,13 @@ if __name__ == "__main__":
 This runs exactly the same, except for the `Pipeline.run` command, which is now replaced with the sequencer `then` on the command line itself:
 
 ```console
-% PYTHONPATH=. python examples/fire-up-group-minimal.py ingestion run
+% PYTHONPATH=. python examples/fired-up-group-minimal.py ingestion run
 Ingesting! Nom nom nom...
-% PYTHONPATH=. python examples/fire-up-group-minimal.py digestion run
+% PYTHONPATH=. python examples/fired-up-group-minimal.py digestion run
 Burp!
-% PYTHONPATH=. python examples/fire-up-group-minimal.py digestion status
+% PYTHONPATH=. python examples/fired-up-group-minimal.py digestion status
 Satiated.
-% PYTHONPATH=. python examples/fire-up-group-minimal.py --all ingestion run then digestion run
+% PYTHONPATH=. python examples/fired-up-group-minimal.py --all ingestion run then digestion run
 Ingesting! Nom nom nom...
 Burp!
 ```
