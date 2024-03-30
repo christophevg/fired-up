@@ -40,6 +40,6 @@ FiredUp(generate=Generator, dump=Dumper)
 
 `Fired Up` provides the following support for creating a even "nicer" natural-ish command language: 
 
-* a `Group` base class allows for simply creating a functional class, that has access to a `clipboard` using the `copy` and `paste` methods.
+* a `Group` base class allows for simply creating a functional class, that has access to a `clipboard` using the `copy` and `paste` methods. You will hardly ever require the `copy` method, since the returned values of your methods are automatically `copy`'d onto the default clipboard.
 * a `FiredUp` top-level class to bring together the `Groups` and fire them up
-* a `then` method on `Groups` allows to exit the `Group` scope and return to the top-level `FiredUp` class to access a different `Group`
+* a `then` method on `Groups` allows to _exit_ the current `Group` scope and return to the top-level `FiredUp` class to access a different `Group`

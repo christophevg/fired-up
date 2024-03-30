@@ -1,71 +1,10 @@
 # Examples & More
 
-### The Fire Guide Group Example
+Besides the `then` sequencer, `FiredUp` offers some more support to allow grouped command classes to interact:
 
-The [Fire Guide](https://google.github.io/python-fire/guide/#grouping-commands) has an example of grouping. With `FiredUp` this grouping is even improved upon:
+## Globals and Arguments
 
-Given a few alterations, the same and a lot more is possible:
-
-```python
-from fired_up import FiredUp, Group
-
-class IngestionStage(Group):
-  def run(self):
-    return 'Ingesting! Nom nom nom...'
-
-class DigestionStage(Group):
-  def __init__(self, *args, **kwargs):
-    super().__init__(*args, **kwargs)
-    self._volume = 1
-
-  def volume(self, new_volume):
-    self._volume = new_volume
-
-  def run(self):
-    return ' '.join(['Burp!'] * self._volume)
-
-  def status(self):
-    return 'Satiated.'
-
-class Pipeline(FiredUp):
-  def run(self):
-    self.ingestion.run()
-    ingestion_output = self.paste()
-    self.digestion.run()
-    digestion_output = self.paste()
-    self.copy([ ingestion_output, digestion_output ])
-    return self
-
-if __name__ == "__main__":
-  Pipeline(ingestion=IngestionStage, digestion=DigestionStage)
-```
-
-> I'm not happy yet with the required changes, so improvements will be imminent ;-)
-
-For now, it runs the same and offers improved chaining possibilities:
-
-```conole
-% python examples/fire-group.py ingestion run
-Ingesting! Nom nom nom...
-% python examples/fire-group.py digestion run
-Burp!
-% python examples/fire-group.py digestion status
-Satiated.
-% python examples/fire-group.py ingestion run then digestion run status
-Satiated.
-% python examples/fire-group.py --all ingestion run then digestion run status
-Ingesting! Nom nom nom...
-Burp!
-Satiated.
-% python examples/fire-group.py --all ingestion run then digestion volume 2 run status
-Ingesting! Nom nom nom...
-Burp! Burp!
-Satiated.
-```
-
-### Globals and Arguments
-
-Besides the versioned clipboard, you can also use globals and pass arguments to the constructors of the Groups:
+Besides the clipboard to pass around information, you can also use globals and pass arguments to the constructors of the Groups:
 
 ```python
 from fired_up import FiredUp, Group
@@ -96,7 +35,7 @@ right> left was here
 left> right was here too
 ```
 
-### Menus
+## Menus
 
 The FireUp class is kind of a Menu of Groups of Commands. You cal also nest Menus of your own:
 
@@ -136,7 +75,7 @@ Commands> running...
 SubSubCommands> running...
 ```
 
-### Simple Commands
+## Simple Commands
 
 Besides objects with commands and menus, you can also simply provide a function, which will be handled as a command:
 
@@ -158,7 +97,7 @@ hello
 0.0.7
 ```
 
-### Public Functions and Output
+## Public Functions and Output
 
 Since `FiredUp` makes all public functions chainable, public functions that return some value can't be used directly by other functions. To access the original return value one can use `.paste()` in a chaining way:
 
@@ -210,3 +149,9 @@ COMMANDS
 
      then
 ```
+
+## The examples/ Folder and Target
+
+You can run all examples in one go, using the `Makefile`'s `examples` target:
+
+![Examples](_static/examples.png)
