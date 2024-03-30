@@ -1,12 +1,12 @@
 # Getting Started
 
-### Minimal Survival Command
+## Minimal Survival Command
 
 ```console
 % pip install fired-up
 ```
 
-### An example
+## An example
 
 With `Fired Up` it is possible to run a command like this:
 
